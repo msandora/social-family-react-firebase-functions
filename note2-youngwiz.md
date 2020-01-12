@@ -3,7 +3,7 @@ Thank you for taking a moment to help, I am limited on resources so whenever a f
 Please note that I left the firebaseConfig empty since you would not have access to my firebase credentials. You can replace with your own for testing. 
 line 7 of index.js
 
-At this point I have redone this course up until this part 3 times and watched the video several times trying to figure out what I am doing wrong.
+At this point I have redone this course up until this part 3 times and watched the video several times trying to figure out what I am doing wrong. firebase serve command has not been working for me so i have been using firebase deploy each time. 
 
 During this course I encountered a 2 problems, if you can assist me with solving either of these issues or at least provide a better understanding of the issues I would be very grateful.
 
