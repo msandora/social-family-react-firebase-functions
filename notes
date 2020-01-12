@@ -1,0 +1,17 @@
+https://www.youtube.com/watch?v=m_u6P5k0vP0&t=795s
+
+
+Setup Steps:
+Marks-MBP:~ marksandora$ npm install -g firebase-tools 
+
+Marks-MBP:~ marksandora$ firebase login
+
+Marks-MBP:socialfamily-functions marksandora$ firebase init
+-Choose project  (socialfamily)
+-Choose javascript or typescript
+-ESLint no
+-install yes
+
+Marks-MBP:functions marksandora$ npm install --save express
+
+Marks-MBP:functions marksandora$ npm install --save firebase
