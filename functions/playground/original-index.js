@@ -21,7 +21,7 @@ const db = admin.firestore();
 app.get('/screams', (req, res) => {
   db
     .collection('screams')
-    // .orderBy('createdAt', 'desc')
+    .orderBy('createdAt', 'desc')
     .get()
     .then((data) => {
       let screams = [];
@@ -31,7 +31,7 @@ app.get('/screams', (req, res) => {
             screamId: doc.id,
             body: doc.data().body,
             userHandle: doc.data().userHandle,
-            createdAt: doc.data().createAt,
+            createdAt: doc.data().createdAt,
             commentCount: doc.data().commentCount,
             likeCount: doc.data().likeCount
           });
@@ -82,8 +82,7 @@ app.post('/scream', FBAuth, (req, res) => {
   const newScream = {
     body: req.body.body,
     userHandle: req.user.handle,
-    // createAt: admin.firestore.Timestamp.fromDate(new Date())
-    createAt: new Date().toISOString()
+    createdAt: new Date().toISOString()
   };
 
   db

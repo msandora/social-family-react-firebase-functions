@@ -12,7 +12,7 @@ app.post('/scream', FBAuth, postOneScream);
 
 app.post('/signup', signup);
 app.post('/login', login);
-app.post('/user/image', uploadImage);
+app.post('/user/image', FBAuth, uploadImage);
 
 // https://baseurl.com/api/ 
 exports.api = functions.https.onRequest(app);
