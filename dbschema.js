@@ -8,7 +8,7 @@ let db = {
       imageUrl: 'image/dsfsdkfghskdfgs/dgfdhfgdh',
       bio: 'Hello, my name is user, nice to meet you',
       website: 'https://user.com',
-      location: 'Lonodn, UK'
+      location: 'London, UK'
     }
   ],
   screams: [
