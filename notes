@@ -15,3 +15,5 @@ Marks-MBP:socialfamily-functions marksandora$ firebase init
 Marks-MBP:functions marksandora$ npm install --save express
 
 Marks-MBP:functions marksandora$ npm install --save firebase
+
+Marks-MBP:functions marksandora$ npm install --save busboy
