@@ -99,7 +99,15 @@ exports.login = (req, res) => {
     });
 };
 
-// Add user details
+/*********************** 
+Add user details 
+Post: /api/user 
+Body: {
+	"bio": "TEST",
+	"website": "user.com",
+	"location": "NY"
+}
+************************/
 exports.addUserDetails = (req, res) => {
   let userDetails = reduceUserDetails(req.body);
 
@@ -113,6 +121,7 @@ exports.addUserDetails = (req, res) => {
       return res.status(500).json({ error: err.code });
     });
 };
+
 // Get any user's details
 exports.getUserDetails = (req, res) => {
   let userData = {};
@@ -150,7 +159,13 @@ exports.getUserDetails = (req, res) => {
       return res.status(500).json({ error: err.code });
     });
 };
+
+
+/*********************** 
 // Get own user details
+Get: /api/user 
+No Body
+************************/
 exports.getAuthenticatedUser = (req, res) => {
   let userData = {};
   db.doc(`/users/${req.user.handle}`)

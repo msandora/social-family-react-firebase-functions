@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const app = require('express')();
 const FBAuth = require('./util/FBAuth');
 
-const{ db } = require('./util/admin');
+const { db } = require('./util/admin');
 
 const { 
     getAllScreams, 
@@ -44,16 +44,14 @@ app.post('/notifications', FBAuth, markNotificationsRead);
 // https://baseurl.com/api/ 
 exports.api = functions.https.onRequest(app);
 
+
 exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
     .onCreate((snapshot) => {
     return db
       .doc(`/screams/${snapshot.data().screamId}`)
       .get()
       .then((doc) => {
-        if (
-          doc.exists &&
-          doc.data().userHandle !== snapshot.data().userHandle
-        ) {
+        if (doc.exists && doc.data().userHandle !== snapshot.data().userHandle) {
           return db.doc(`/notifications/${snapshot.id}`).set({
             createdAt: new Date().toISOString(),
             recipient: doc.data().userHandle,

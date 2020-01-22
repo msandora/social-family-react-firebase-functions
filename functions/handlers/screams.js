@@ -51,7 +51,12 @@ exports.postOneScream = (req, res) => {
       console.error(err);
     });
 };
+
+/*********************** 
 // Fetch one scream
+Get: /api/scream/(ScreamId: MVz7Dhjkc3jjLHCFhpAV)
+No Headers / No Body
+************************/
 exports.getScream = (req, res) => {
   let screamData = {};
   db.doc(`/screams/${req.params.screamId}`)
@@ -80,7 +85,15 @@ exports.getScream = (req, res) => {
       res.status(500).json({ error: err.code });
     });
 };
+
+/*********************** 
 // Comment on a comment
+Post: /api/scream/(ScreamId: MVz7Dhjkc3jjLHCFhpAV)/comment
+No Headers 
+Body: {
+	"body": "New comment"
+}
+************************/
 exports.commentOnScream = (req, res) => {
   if (req.body.body.trim() === '')
     return res.status(400).json({ comment: 'Must not be empty' });
