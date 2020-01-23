@@ -84,6 +84,10 @@ exports.createNotificationOnComment = functions
       .doc(`/screams/${snapshot.data().screamId}`)
       .get()
       .then((doc) => {
+/** need to check that the liked scream actually exists 
+  * and a sender is not a recepient, i.e. the user is not liking his own screams.
+  * In that case, we do not send any notification.
+  */
         if (
           doc.exists &&
           doc.data().userHandle !== snapshot.data().userHandle
@@ -97,6 +101,9 @@ exports.createNotificationOnComment = functions
             screamId: doc.id
           });
         }
+      })
+      .then(() => {
+        return;
       })
       .catch((err) => {
         console.error(err);

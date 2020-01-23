@@ -69,7 +69,7 @@ exports.getScream = (req, res) => {
       screamData.screamId = doc.id;
       return db
         .collection('comments')
-        .orderBy('createdAt', 'desc')
+        .orderBy('createdAt', 'desc')  // 2:42:00 need to create comments index in firebase
         .where('screamId', '==', req.params.screamId)
         .get();
     })
@@ -87,11 +87,11 @@ exports.getScream = (req, res) => {
 };
 
 /*********************** 
-// Comment on a comment
+// Comment on a Scream
 Post: /api/scream/(ScreamId: MVz7Dhjkc3jjLHCFhpAV)/comment
-No Headers 
+Headers: Bearer (Authorization Token)
 Body: {
-	"body": "New comment"
+	"body": "Comment on a Scream"
 }
 ************************/
 exports.commentOnScream = (req, res) => {
@@ -127,7 +127,11 @@ exports.commentOnScream = (req, res) => {
     });
 };
 
+/*********************** 
 // Like a scream
+Get: /api/scream/MVz7Dhjkc3jjLHCFhpAV/like
+Headers: Bearer (Authorization Token)
+************************/
 exports.likeScream = (req, res) => {
   const likeDocument = db
     .collection('likes')
@@ -175,6 +179,11 @@ exports.likeScream = (req, res) => {
     });
 };
 
+/*********************** 
+// Unlike a scream
+Get: /api/scream/MVz7Dhjkc3jjLHCFhpAV/unlike
+Headers: Bearer (Authorization Token)
+************************/
 exports.unlikeScream = (req, res) => {
   const likeDocument = db
     .collection('likes')
@@ -219,7 +228,12 @@ exports.unlikeScream = (req, res) => {
     });
 };
 
+/*********************** 
 // Delete a scream
+Delete: /api/scream/0fgCErKMixJoGZt65WtV
+Headers: Bearer (Authorization Token)
+No body 
+************************/
 exports.deleteScream = (req, res) => {
   const document = db.doc(`/screams/${req.params.screamId}`);
   document

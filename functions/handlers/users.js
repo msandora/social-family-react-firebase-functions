@@ -238,7 +238,7 @@ exports.uploadImage = (req, res) => {
   busboy.on('finish', () => {
     admin
       .storage()
-      .bucket()
+      .bucket(config.storageBucket)
       .upload(imageToBeUploaded.filepath, {
         resumable: false,
         metadata: {
