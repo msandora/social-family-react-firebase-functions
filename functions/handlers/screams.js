@@ -126,6 +126,7 @@ exports.commentOnScream = (req, res) => {
       res.status(500).json({ error: 'Something went wrong' });
     });
 };
+
 // Like a scream
 exports.likeScream = (req, res) => {
   const likeDocument = db
@@ -217,6 +218,7 @@ exports.unlikeScream = (req, res) => {
       res.status(500).json({ error: err.code });
     });
 };
+
 // Delete a scream
 exports.deleteScream = (req, res) => {
   const document = db.doc(`/screams/${req.params.screamId}`);

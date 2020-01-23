@@ -1,3 +1,4 @@
+//Last Working version
 const { admin, db } = require('../util/admin');
 
 const config = require('../util/config');
@@ -103,7 +104,7 @@ exports.login = (req, res) => {
 Add user details 
 Post: /api/user 
 Body: {
-	"bio": "TEST",
+	"bio": "My Bio",
 	"website": "user.com",
 	"location": "NY"
 }
@@ -123,6 +124,7 @@ exports.addUserDetails = (req, res) => {
 };
 
 // Get any user's details
+// I think the problem might be here somewhere
 exports.getUserDetails = (req, res) => {
   let userData = {};
   db.doc(`/users/${req.params.handle}`)
@@ -160,7 +162,6 @@ exports.getUserDetails = (req, res) => {
     });
 };
 
-
 /*********************** 
 // Get own user details
 Get: /api/user 
@@ -171,7 +172,7 @@ exports.getAuthenticatedUser = (req, res) => {
   db.doc(`/users/${req.user.handle}`)
     .get()
     .then((doc) => {
-      if (doc.exists) {
+      if(doc.exists) {
         userData.credentials = doc.data();
         return db
           .collection('likes')
@@ -184,12 +185,7 @@ exports.getAuthenticatedUser = (req, res) => {
       data.forEach((doc) => {
         userData.likes.push(doc.data());
       });
-      return db
-        .collection('notifications')
-        .where('recipient', '==', req.user.handle)
-        .orderBy('createdAt', 'desc')
-        .limit(10)
-        .get();
+      return res.json(userData);
     })
     .then((data) => {
       userData.notifications = [];
@@ -211,6 +207,7 @@ exports.getAuthenticatedUser = (req, res) => {
       return res.status(500).json({ error: err.code });
     });
 };
+
 // Upload a profile image for user
 exports.uploadImage = (req, res) => {
   const BusBoy = require('busboy');
