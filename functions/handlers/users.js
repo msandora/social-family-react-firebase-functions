@@ -26,12 +26,12 @@ exports.signup = (req, res) => {
   if (!valid) return res.status(400).json(errors);
 
   const noImg = 'no-img.png';
-
   let token, userId;
+
   db.doc(`/users/${newUser.handle}`)
     .get()
     .then((doc) => {
-      if (doc.exists) {
+      if (doc.exists) { // Check if user handle exists in db
         return res.status(400).json({ handle: 'this handle is already taken' });
       } else {
         return firebase
