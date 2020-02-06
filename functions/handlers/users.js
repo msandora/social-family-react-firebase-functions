@@ -124,7 +124,6 @@ exports.addUserDetails = (req, res) => {
 };
 
 // Get any user's details
-// I think the problem might be here somewhere
 exports.getUserDetails = (req, res) => {
   let userData = {};
   db.doc(`/users/${req.params.handle}`)

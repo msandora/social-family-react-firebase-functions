@@ -5,23 +5,33 @@ const FBAuth = require('./util/FBAuth');
 const { db } = require('./util/admin');
 
 const { 
-    getAllScreams, 
-    postOneScream, 
-    getScream, 
-    commentOnScream,
-    likeScream,
-    unlikeScream,
-    deleteScream
+  getAllRecipes,
+  postOneRecipe,
+  deleteRecipe
+} = require('./handlers/recipes');
+const { 
+  getAllScreams, 
+  postOneScream, 
+  getScream, 
+  commentOnScream,
+  likeScream,
+  unlikeScream,
+  deleteScream
 } = require('./handlers/screams');
 const {
-    signup,
-    login,
-    uploadImage,
-    addUserDetails,
-    getAuthenticatedUser,
-    getUserDetails,
-    markNotificationsRead
+  signup,
+  login,
+  uploadImage,
+  addUserDetails,
+  getAuthenticatedUser,
+  getUserDetails,
+  markNotificationsRead
 } = require('./handlers/users');
+
+// recipe routes
+app.get('/recipes', getAllRecipes);
+app.post('/recipe', FBAuth, postOneRecipe);
+app.delete('/recipe/:recipeId', FBAuth, deleteRecipe);
 
 // scream routes
 app.get('/screams', getAllScreams);
@@ -41,7 +51,7 @@ app.get('/user', FBAuth, getAuthenticatedUser);
 app.get('/user/:handle', getUserDetails);
 app.post('/notifications', FBAuth, markNotificationsRead);
 
-// https://baseurl.com/api/ 
+// https://baseurl.com/api/ - Make 'app' container for all routes
 exports.api = functions.https.onRequest(app);
 
 
