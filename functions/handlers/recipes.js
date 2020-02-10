@@ -10,11 +10,14 @@ exports.getAllRecipes = (req, res) => {
         recipes.push({
             recipeId: doc.id,
             recipeTitle: doc.data().recipeTitle,
+            recipeType: doc.data().recipeType,
             body: doc.data().body,
-            userHandle: doc.data().userHandle,
             createdAt: doc.data().createdAt,
             ingredients: doc.data().ingredients,
-            recipeImage: doc.data().recipeImage
+            commentCount: doc.data().commentCount,
+            likeCount: doc.data().likeCount,
+            userHandle: doc.data().userHandle,
+            userImage: doc.data().userImage
         });
       });
       return res.json(recipes);
@@ -32,11 +35,14 @@ exports.postOneRecipe = (req, res) => {
 
 	const newRecipe = {
 		recipeTitle: req.body.title,
+		recipeType: req.body.type,
 		body: req.body.body,
 		ingredients: req.body.ingredients,
-		userHandle: req.user.handle,
-		recipeImage: req.user.imageUrl,
-		createdAt: new Date().toISOString()
+    userHandle: req.user.handle,
+    userImage: req.user.imageUrl,
+    createdAt: new Date().toISOString(),
+    likeCount: 0,
+    commentCount: 0
 	};
 
 	db.collection('recipes')
