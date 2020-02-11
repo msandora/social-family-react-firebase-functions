@@ -1,5 +1,10 @@
 const { db } = require('../util/admin');
 
+/*********************** 
+// Fetch all recipe
+Get: /api/recipes
+No Headers / No Body
+************************/
 exports.getAllRecipes = (req, res) => {
   db.collection('recipes')
     .orderBy('createdAt', 'desc')
@@ -58,6 +63,141 @@ exports.postOneRecipe = (req, res) => {
 		});
 };
 
+/*********************** 
+// Fetch one recipe
+Get: /api/recipe/(RecipeId: MVz7Dhjkc3jjLHCFhpAV)
+No Headers / No Body
+************************/
+exports.getRecipe = (req, res) => {
+  let recipeData = {};
+  db.doc(`/recipes/${req.params.recipeId}`)
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Recipe not found' });
+      }
+      recipeData = doc.data();
+      recipeData.recipeId = doc.id;
+      return db
+        .collection('comments')
+        .orderBy('createdAt', 'desc')  // 2:42:00 need to create comments index in firebase
+        .where('recipeId', '==', req.params.recipeId)
+        .get();
+    })
+    .then((data) => {
+      recipeData.comments = [];
+      data.forEach((doc) => {
+        recipeData.comments.push(doc.data());
+      });
+      return res.json(recipeData);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
+};
+
+
+/*********************** 
+// Like a recipe
+Get: /api/recipe/MVz7Dhjkc3jjLHCFhpAV/like
+Headers: Bearer (Authorization Token)
+************************/
+exports.likeRecipe = (req, res) => {
+  const likeDocument = db
+    .collection('likes')
+    .where('userHandle', '==', req.user.handle)
+    .where('recipeId', '==', req.params.recipeId)
+    .limit(1);
+
+  const recipeDocument = db.doc(`/recipes/${req.params.recipeId}`);
+
+  let recipeData;
+
+  recipeDocument
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        recipeData = doc.data();
+        recipeData.recipeId = doc.id;
+        return likeDocument.get();
+      } else {
+        return res.status(404).json({ error: 'Recipe not found' });
+      }
+    })
+    .then((data) => {
+      if (data.empty) {
+        return db
+          .collection('likes')
+          .add({
+            recipeId: req.params.recipeId,
+            userHandle: req.user.handle
+          })
+          .then(() => {
+            recipeData.likeCount++;
+            return recipeDocument.update({ likeCount: recipeData.likeCount });
+          })
+          .then(() => {
+            return res.json(recipeData);
+          });
+      } else {
+        return res.status(400).json({ error: 'Recipe already liked' });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
+};
+
+/*********************** 
+// Unlike a recipe
+Get: /api/recipe/MVz7Dhjkc3jjLHCFhpAV/unlike
+Headers: Bearer (Authorization Token)
+************************/
+exports.unlikeRecipe = (req, res) => {
+  const likeDocument = db
+    .collection('likes')
+    .where('userHandle', '==', req.user.handle)
+    .where('recipeId', '==', req.params.recipeId)
+    .limit(1);
+
+  const recipeDocument = db.doc(`/recipes/${req.params.recipeId}`);
+
+  let recipeData;
+
+  recipeDocument
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        recipeData = doc.data();
+        recipeData.recipeId = doc.id;
+        return likeDocument.get();
+      } else {
+        return res.status(404).json({ error: 'Recipe not found' });
+      }
+    })
+    .then((data) => {
+      if (data.empty) {
+        return res.status(400).json({ error: 'Recipe not liked' });
+      } else {
+        return db
+          .doc(`/likes/${data.docs[0].id}`)
+          .delete()
+          .then(() => {
+            recipeData.likeCount--;
+            return recipeDocument.update({ likeCount: recipeData.likeCount });
+          })
+          .then(() => {
+            res.json(recipeData);
+          });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
+};
 
 /*********************** 
 // Delete a recipe

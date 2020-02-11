@@ -34,7 +34,10 @@ const {
 // recipe routes
 app.get('/recipes', getAllRecipes);
 app.post('/recipe', FBAuth, postOneRecipe);
+app.get('/recipe/:recipeId', getRecipe);
 app.delete('/recipe/:recipeId', FBAuth, deleteRecipe);
+app.get('/recipe/:recipeId/like', FBAuth, likeRecipe);
+app.get('/recipe/:recipeId/unlike', FBAuth, unlikeRecipe);
 
 // scream routes
 app.get('/screams', getAllScreams);

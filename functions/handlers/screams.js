@@ -1,6 +1,5 @@
 const { db } = require('../util/admin');
 
-
 /*********************** 
 // Fetch all scream
 Get: /api/screams
