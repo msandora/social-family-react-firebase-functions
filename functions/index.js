@@ -10,7 +10,10 @@ const { db } = require('./util/admin');
 const { 
   getAllRecipes,
   postOneRecipe,
-  deleteRecipe
+  deleteRecipe,
+  getRecipe,
+  likeRecipe,
+  unlikeRecipe
 } = require('./handlers/recipes');
 const { 
   getAllScreams, 
