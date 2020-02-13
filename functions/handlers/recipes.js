@@ -13,18 +13,18 @@ exports.getAllRecipes = (req, res) => {
       let recipes = [];
       data.forEach((doc) => {
         recipes.push({
-            recipeId: doc.id,
+            screamId: doc.id,
             recipeTitle: doc.data().recipeTitle,
             recipeType: doc.data().recipeType,
             body: doc.data().body,
             createdAt: doc.data().createdAt,
             ingredients: doc.data().ingredients,
-            commentCount: doc.data().commentCount,
             likeCount: doc.data().likeCount,
             userHandle: doc.data().userHandle,
             userImage: doc.data().userImage
         });
       });
+      // console.log("getAllRecipes", recipes);
       return res.json(recipes);
     })
     .catch((err) => {
@@ -39,22 +39,22 @@ exports.postOneRecipe = (req, res) => {
 	}
 
 	const newRecipe = {
-		recipeTitle: req.body.title,
-		recipeType: req.body.type,
+		recipeTitle: req.body.recipeTitle,
+		recipeType: req.body.recipeType,
 		body: req.body.body,
 		ingredients: req.body.ingredients,
     userHandle: req.user.handle,
     userImage: req.user.imageUrl,
     createdAt: new Date().toISOString(),
-    likeCount: 0,
-    commentCount: 0
+    likeCount: 0
 	};
+  // console.log("postOneRecipe", newRecipe);
 
 	db.collection('recipes')
 		.add(newRecipe)
 		.then((doc) => {
 			const resRecipe = newRecipe;
-			resRecipe.recipeId = doc.id;
+			resRecipe.screamId = doc.id;
 			res.json(resRecipe);
 		})
 		.catch((err) => {
@@ -65,23 +65,23 @@ exports.postOneRecipe = (req, res) => {
 
 /*********************** 
 // Fetch one recipe
-Get: /api/recipe/(RecipeId: MVz7Dhjkc3jjLHCFhpAV)
+Get: /api/recipe/(screamId: MVz7Dhjkc3jjLHCFhpAV)
 No Headers / No Body
 ************************/
 exports.getRecipe = (req, res) => {
   let recipeData = {};
-  db.doc(`/recipes/${req.params.recipeId}`)
+  db.doc(`/recipes/${req.params.screamId}`)
     .get()
     .then((doc) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Recipe not found' });
       }
       recipeData = doc.data();
-      recipeData.recipeId = doc.id;
+      recipeData.screamId = doc.id;
       return db
         .collection('comments')
         .orderBy('createdAt', 'desc')  // 2:42:00 need to create comments index in firebase
-        .where('recipeId', '==', req.params.recipeId)
+        .where('screamId', '==', req.params.screamId)
         .get();
     })
     .then((data) => {
@@ -107,10 +107,10 @@ exports.likeRecipe = (req, res) => {
   const likeDocument = db
     .collection('likes')
     .where('userHandle', '==', req.user.handle)
-    .where('recipeId', '==', req.params.recipeId)
+    .where('screamId', '==', req.params.screamId)
     .limit(1);
 
-  const recipeDocument = db.doc(`/recipes/${req.params.recipeId}`);
+  const recipeDocument = db.doc(`/recipes/${req.params.screamId}`);
 
   let recipeData;
 
@@ -119,7 +119,7 @@ exports.likeRecipe = (req, res) => {
     .then((doc) => {
       if (doc.exists) {
         recipeData = doc.data();
-        recipeData.recipeId = doc.id;
+        recipeData.screamId = doc.id;
         return likeDocument.get();
       } else {
         return res.status(404).json({ error: 'Recipe not found' });
@@ -130,7 +130,7 @@ exports.likeRecipe = (req, res) => {
         return db
           .collection('likes')
           .add({
-            recipeId: req.params.recipeId,
+            screamId: req.params.screamId,
             userHandle: req.user.handle
           })
           .then(() => {
@@ -159,10 +159,10 @@ exports.unlikeRecipe = (req, res) => {
   const likeDocument = db
     .collection('likes')
     .where('userHandle', '==', req.user.handle)
-    .where('recipeId', '==', req.params.recipeId)
+    .where('screamId', '==', req.params.screamId)
     .limit(1);
 
-  const recipeDocument = db.doc(`/recipes/${req.params.recipeId}`);
+  const recipeDocument = db.doc(`/recipes/${req.params.screamId}`);
 
   let recipeData;
 
@@ -171,7 +171,7 @@ exports.unlikeRecipe = (req, res) => {
     .then((doc) => {
       if (doc.exists) {
         recipeData = doc.data();
-        recipeData.recipeId = doc.id;
+        recipeData.screamId = doc.id;
         return likeDocument.get();
       } else {
         return res.status(404).json({ error: 'Recipe not found' });
@@ -206,7 +206,7 @@ Headers: Bearer (Authorization Token)
 No body 
 ************************/
 exports.deleteRecipe = (req, res) => {
-  const document = db.doc(`/recipes/${req.params.recipeId}`);
+  const document = db.doc(`/recipes/${req.params.screamId}`);
   document
     .get()
     .then((doc) => {
