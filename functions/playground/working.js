@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+const functions = require('firebase-functions');
 const app = require('express')();
 const FBAuth = require('./util/FBAuth');
 
@@ -10,11 +10,10 @@ const { db } = require('./util/admin');
 const { 
   getAllRecipes,
   postOneRecipe,
+  deleteRecipe,
   getRecipe,
-  commentOnRecipe,
   likeRecipe,
-  unlikeRecipe,
-  deleteRecipe
+  unlikeRecipe
 } = require('./handlers/recipes');
 const { 
   getAllScreams, 
@@ -42,7 +41,6 @@ app.get('/recipe/:screamId', getRecipe);
 app.delete('/recipe/:screamId', FBAuth, deleteRecipe);
 app.get('/recipe/:screamId/like', FBAuth, likeRecipe);
 app.get('/recipe/:screamId/unlike', FBAuth, unlikeRecipe);
-app.post('/recipe/:screamId/comment', FBAuth, commentOnRecipe);
 
 // scream routes
 app.get('/screams', getAllScreams);

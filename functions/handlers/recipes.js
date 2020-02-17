@@ -1,4 +1,8 @@
-const { db } = require('../util/admin');
+const { admin, db } = require('../util/admin');
+
+const {
+  validateRecipeData
+} = require('../util/validators');
 
 /*********************** 
 // Fetch all recipe
@@ -17,14 +21,16 @@ exports.getAllRecipes = (req, res) => {
             recipeTitle: doc.data().recipeTitle,
             recipeType: doc.data().recipeType,
             body: doc.data().body,
-            createdAt: doc.data().createdAt,
             ingredients: doc.data().ingredients,
-            likeCount: doc.data().likeCount,
             userHandle: doc.data().userHandle,
-            userImage: doc.data().userImage
+            userImage: doc.data().userImage,
+            // recipeImage: doc.data().recipeImage,
+            createdAt: doc.data().createdAt,
+            likeCount: doc.data().likeCount,
+            commentCount: doc.data().commentCount
         });
       });
-      // console.log("getAllRecipes", recipes);
+      console.log("getAllRecipes", recipes);
       return res.json(recipes);
     })
     .catch((err) => {
@@ -34,10 +40,6 @@ exports.getAllRecipes = (req, res) => {
 };
 
 exports.postOneRecipe = (req, res) => {
-	if (req.body.body.trim() === '') {
-		return res.status(400).json({ body: 'Body must not be empty' });
-	}
-
 	const newRecipe = {
 		recipeTitle: req.body.recipeTitle,
 		recipeType: req.body.recipeType,
@@ -45,10 +47,17 @@ exports.postOneRecipe = (req, res) => {
 		ingredients: req.body.ingredients,
     userHandle: req.user.handle,
     userImage: req.user.imageUrl,
+    // recipeImage: req.body.recipeImage,
     createdAt: new Date().toISOString(),
-    likeCount: 0
-	};
-  // console.log("postOneRecipe", newRecipe);
+    likeCount: 0,
+    commentCount: 0
+  };
+  console.log("postOneRecipe", newRecipe);
+
+  const { valid, errors } = validateRecipeData(newRecipe);
+
+  if (!valid) return res.status(400).json(errors);
+
 
 	db.collection('recipes')
 		.add(newRecipe)
@@ -94,6 +103,47 @@ exports.getRecipe = (req, res) => {
     .catch((err) => {
       console.error(err);
       res.status(500).json({ error: err.code });
+    });
+};
+
+/*********************** 
+// Comment on a Recipe
+Post: /api/recipe/(ScreamId: MVz7Dhjkc3jjLHCFhpAV)/comment
+Headers: Bearer (Authorization Token)
+Body: {
+	"body": "Comment on a Recipe"
+}
+************************/
+exports.commentOnRecipe = (req, res) => {
+  if (req.body.body.trim() === '')
+    return res.status(400).json({ comment: 'Must not be empty' });
+
+  const newComment = {
+    body: req.body.body,
+    createdAt: new Date().toISOString(),
+    screamId: req.params.screamId,
+    userHandle: req.user.handle,
+    userImage: req.user.imageUrl
+  };
+  console.log(newComment);
+
+  db.doc(`/recipes/${req.params.screamId}`)
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Recipe not found' });
+      }
+      return doc.ref.update({ commentCount: doc.data().commentCount + 1 });
+    })
+    .then(() => {
+      return db.collection('comments').add(newComment);
+    })
+    .then(() => {
+      res.json(newComment);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Something went wrong' });
     });
 };
 

@@ -22,6 +22,7 @@ exports.getAllScreams = (req, res) => {
           userImage: doc.data().userImage
         });
       });
+      console.log("getAllScreams", screams);
       return res.json(screams);
     })
     .catch((err) => {
@@ -51,6 +52,7 @@ exports.postOneScream = (req, res) => {
     likeCount: 0,
     commentCount: 0
   };
+  console.log("postOneScream", newScream);
 
   db.collection('screams')
     .add(newScream)

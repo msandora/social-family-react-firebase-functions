@@ -9,6 +9,11 @@ const isEmpty = (string) => {
   else return false;
 };
 
+const Linkify = (str) => {
+  const newStr =  str.replace(/((http(s)?(\:\/\/))?(www\.)?(\w)*(\.[a-zA-Z]{2,4}\/?))(?!([\/a-z<\/a>])|(\'|\"))/g,'<a href="$1">$1</a>');
+  return newStr;
+};
+
 exports.validateSignupData = (data) => {
   let errors = {};
 
@@ -54,4 +59,20 @@ exports.reduceUserDetails = (data) => {
   if (!isEmpty(data.location.trim())) userDetails.location = data.location;
 
   return userDetails;
+};
+
+
+
+exports.validateRecipeData = (data) => {
+  let errors = {};
+
+  if (isEmpty(data.recipeTitle)) errors.recipeTitle = 'Must not be empty';
+  if (isEmpty(data.recipeType)) errors.recipeType = 'Must not be empty';
+  if (isEmpty(data.ingredients)) errors.ingredients = 'Must not be empty';
+  if (isEmpty(data.body)) errors.body = 'Must not be empty';
+
+  return {
+    errors,
+    valid: Object.keys(errors).length === 0 ? true : false
+  };
 };
