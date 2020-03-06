@@ -280,7 +280,7 @@ exports.deleteRecipe = (req, res) => {
 
 
 
-// Upload a profile image for user
+// Trying to upload recipe image into a specific folder
 exports.uploadRecipeImage = (req, res) => {
   const BusBoy = require('busboy');
   const path = require('path');
@@ -305,10 +305,7 @@ exports.uploadRecipeImage = (req, res) => {
     ).toString()}.${imageExtension}`;
     
     const filepath = path.join(os.tmpdir(), imageFileName);
-
     imageToBeUploaded = { filepath, mimetype };
-    console.log("filepath", filepath);
-
     file.pipe(fs.createWriteStream(filepath));
   });
   busboy.on('finish', () => {
@@ -326,11 +323,8 @@ exports.uploadRecipeImage = (req, res) => {
       .then(() => {
         const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${
           config.storageBucket
-        }/o/recipe-images%2F${imageFileName}?alt=media`;
-        console.log("imageUrl", imageUrl);
-        console.log("imageFileName", imageFileName);
-//gs://socialfamily-d58c8.appspot.com/recipe-images
-        // return db.doc(`/users/${req.user.handle}`).update({ imageUrl });
+        }/o/${imageFileName}?alt=media`;
+        return db.doc(`/users/${req.user.handle}`).update({ imageUrl });
       })
       .then(() => {
         return res.json({ message: 'image uploaded successfully' });

@@ -24,8 +24,9 @@ const gcs = new Storage({
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
-exports.onFileChange = functions
-  .storage.object().onFinalize(event => {
+exports.onFileChange = functions.storage
+  .object()
+  .onFinalize(event => {
     const object = event.data;
     const bucket = object.bucket;
     const contentType = object.contentType;
