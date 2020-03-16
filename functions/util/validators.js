@@ -48,10 +48,10 @@ exports.validateLoginData = (data) => {
 
 exports.reduceUserDetails = (data) => {
   let userDetails = {};
+
   if (!isEmpty(data.firstName.trim())) userDetails.firstName = data.firstName;
   if (!isEmpty(data.middleName.trim())) userDetails.middleName = data.middleName;
   if (!isEmpty(data.lastName.trim())) userDetails.lastName = data.lastName;
-
   if (!isEmpty(data.bio.trim())) userDetails.bio = data.bio;
   if (!isEmpty(data.website.trim())) {
     // https://website.com
