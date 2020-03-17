@@ -38,14 +38,14 @@ const {
 
 // recipe routes
 app.get('/recipes', getAllRecipes);
-// app.post('/recipe', FBAuth, postOneRecipe);
+app.post('/recipe', FBAuth, postOneRecipe);
 app.get('/recipe/:screamId', getRecipe);
 app.delete('/recipe/:screamId', FBAuth, deleteRecipe);
 app.get('/recipe/:screamId/like', FBAuth, likeRecipe);
 app.get('/recipe/:screamId/unlike', FBAuth, unlikeRecipe);
 app.post('/recipe/:screamId/comment', FBAuth, commentOnRecipe);
 //experimenting
-app.post('/recipe', FBAuth, createNewRecipe);
+// app.post('/recipe', FBAuth, createNewRecipe);
 
 
 // scream routes
