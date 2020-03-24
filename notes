@@ -38,15 +38,6 @@ The following worked for me, and the order of commands is important.
 2. npm install firebase-admin --save
 you might have to `sudo` these commands depending on how you are logged-in and re-instantiating firebase like this will work as a charm!
 
---------
-GreatGameDota
-4 months ago (edited)
-Anyone else getting CORS policy error whenever they use axios to call the firebase API? I'm working on a fix but I'm wondering if others have the same issue.
-EDIT: Here is my fix:
-Make sure your command line is in the firebase functions folder. Run 'npm i cors --savedev'
-Then in index.js of the functions folder at the top add 'const cors = require('cors');
-Then add the line app.use(cors());
-And your done!
 
 ---------
 firebase serve --port 4000 

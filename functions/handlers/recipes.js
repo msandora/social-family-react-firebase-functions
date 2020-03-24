@@ -278,90 +278,90 @@ exports.deleteRecipe = (req, res) => {
 
 // Experimenting
 // I am trying to create a post for my recipes that includes images
-// exports.createNewRecipe= (req, res) => {
-//   const BusBoy = require('busboy');
-//   const path = require('path');
-//   const os = require('os');
-//   const fs = require('fs');
-//   const busboy = new BusBoy({ headers: req.headers });
+exports.createNewRecipe = (req, res) => {
+  const BusBoy = require('busboy');
+  const path = require('path');
+  const os = require('os');
+  const fs = require('fs');
+  const busboy = new BusBoy({
+    headers: req.headers,
+    limits: {
+      // Cloud functions impose this restriction anyway
+      fileSize: 10 * 1024 * 1024,
+    }
+  });
 
-//   let images = {};
-//   let imageFileName = {};
-//   let imagesToUpload = [];
-//   let imageToAdd = [];
-//   let allImages = [];
+  let images = {};
+  let imageFileName = {};
+  let imagesToUpload = [];
+  let imageToAdd = [];
+  let allImages = [];
 
-//   // Note: os.tmpdir() points to an in-memory file system on GCF
-//   // Thus, any files in it must fit in the instance's memory.
-//   const tmpdir = os.tmpdir();
+  // Note: os.tmpdir() points to an in-memory file system on GCF
+  // Thus, any files in it must fit in the instance's memory.
+  const tmpdir = os.tmpdir();
 
-//   busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-//       console.log(fieldname, file, filename, encoding, mimetype);
-//       if (mimetype !== 'image/jpeg' && mimetype !== 'image/png') {
-//           return res.status(400).json({error: 'Wrong file type submitted'});
-//       }
-//       // my.image.png => ['my', 'image', 'png']
-//       const imageExtension = filename.split('.')[filename.split('.').length - 1];
-//       // 32756238461724837.png
-//       imageFileName = `${Math.round(
-//           Math.random() * 1000000000000
-//       ).toString()}.${imageExtension}`;
+  busboy.on('field', (key, value) => {
+    // You could do additional deserialization logic here, values will just be
+    // strings
+    fields[key] = value;
+  });
 
-//       const filepath = path.join(os.tmpdir(), imageFileName);
-//       imageToAdd = { imageFileName, filepath, mimetype };
-//       file.pipe(fs.createWriteStream(filepath));
-//       images = imagesToUpload.push(imageToAdd);
-//   });
-  
-//   busboy.on('finish', () => {
-//     imagesToUpload.forEach(myImages =>{
-//       allImages.push(myImages);
-//       admin
-//         .storage()
-//         .bucket(config.storageBucket)
-//         .upload(myImages.filepath, {
-//             resumable: false,
-//             metadata: {
-//                 metadata: {
-//                     contentType: myImages.mimetype
-//                 }
-//             }
-//         });
-//     });
-  
-//     let imageUrls = [];
-//     imagesToUpload.forEach(image => {
-//       imageUrls.push(
-//         `https://firebasestorage.googleapis.com/v0/b/${
-//             config.storageBucket
-//         }/o/${image.imageFileName}?alt=media`,
-//       )
-//     });
-//     const newRecipe = {
-//       recipeTitle: req.body.recipeTitle,
-//       recipeType: req.body.recipeType,
-//       body: req.body.body,
-//       ingredients: req.body.ingredients,
-//       images: imageUrls,
-//       userHandle: req.user.handle,
-//       userImage: req.user.imageUrl,
-//       createdAt: new Date().toISOString(),
-//       likeCount: 0,
-//       commentCount: 0
-//     };
-//     console.log(newRecipe);
-//     db.collection('recipes')
-//       .add(newRecipe)
-//       .then((doc) => {
-//         const resRecipe = newRecipe;
-//         resRecipe.screamId = doc.id;
-//         res.json(resRecipe);
-//       })
-//       .catch((err) => {
-//           res.status(500).json({error: 'Something went wrong'});
-//           console.error(err);
-//       });
-//     });
+  busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    console.log(fieldname, file, filename, encoding, mimetype);
+    if (mimetype !== 'image/jpeg' && mimetype !== 'image/png') {
+        return res.status(400).json({error: 'Wrong file type submitted'});
+    }
+    // my.image.png => ['my', 'image', 'png']
+    const imageExtension = filename.split('.')[filename.split('.').length - 1];
+    // 32756238461724837.png
+    imageFileName = `${Math.round(
+        Math.random() * 1000000000000
+    ).toString()}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
+    imageToAdd = {imageFileName, filepath, mimetype};
+    file.pipe(fs.createWriteStream(filepath));
+    images = imagesToUpload.push(imageToAdd);
+  });
 
-//     busboy.end(req.rawBody);
-// };
+  busboy.on('finish', () => {
+    imagesToUpload.forEach(myImages =>{
+      allImages.push(myImages);
+      admin
+        .storage()
+        .bucket()
+        .upload(myImages.filepath, {
+          resumable: false,
+          metadata: {
+            metadata: {
+                contentType: myImages.mimetype
+            }
+          }
+        });
+    });
+    //return res.json(newReview)
+
+    let imageUrls = [];
+    imagesToUpload.forEach(image => {
+      imageUrls.push(
+        `https://firebasestorage.googleapis.com/v0/b/${
+            config.storageBucket
+        }/o/${image.imageFileName}?alt=media`,
+      )
+    });
+    const recipes = {
+      images: imageUrls,
+      createdAt: new Date().toISOString()
+    };
+
+    db.collection('recipes')
+      .add(recipes).then((doc)=> {
+        return res.status(201).json({message: 'recipes submitted successfully'});
+      })
+      .catch((err) => {
+        res.status(500).json({error: 'Something went wrong'});
+        console.error(err);
+      });
+  });
+  busboy.end(req.rawBody);
+};
