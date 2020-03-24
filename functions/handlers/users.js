@@ -26,12 +26,12 @@ exports.signup = (req, res) => {
   if (!valid) return res.status(400).json(errors);
 
   const noImg = 'no-img.png';
-
   let token, userId;
+
   db.doc(`/users/${newUser.handle}`)
     .get()
     .then((doc) => {
-      if (doc.exists) {
+      if (doc.exists) { // Check if user handle exists in db
         return res.status(400).json({ handle: 'this handle is already taken' });
       } else {
         return firebase
@@ -124,7 +124,6 @@ exports.addUserDetails = (req, res) => {
 };
 
 // Get any user's details
-// I think the problem might be here somewhere
 exports.getUserDetails = (req, res) => {
   let userData = {};
   db.doc(`/users/${req.params.handle}`)
@@ -236,6 +235,7 @@ exports.uploadImage = (req, res) => {
     imageFileName = `${Math.round(
       Math.random() * 1000000000000
     ).toString()}.${imageExtension}`;
+    
     const filepath = path.join(os.tmpdir(), imageFileName);
     imageToBeUploaded = { filepath, mimetype };
     file.pipe(fs.createWriteStream(filepath));

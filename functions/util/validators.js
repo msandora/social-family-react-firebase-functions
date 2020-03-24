@@ -9,6 +9,11 @@ const isEmpty = (string) => {
   else return false;
 };
 
+const Linkify = (str) => {
+  const newStr =  str.replace(/((http(s)?(\:\/\/))?(www\.)?(\w)*(\.[a-zA-Z]{2,4}\/?))(?!([\/a-z<\/a>])|(\'|\"))/g,'<a href="$1">$1</a>');
+  return newStr;
+};
+
 exports.validateSignupData = (data) => {
   let errors = {};
 
@@ -44,6 +49,9 @@ exports.validateLoginData = (data) => {
 exports.reduceUserDetails = (data) => {
   let userDetails = {};
 
+  if (!isEmpty(data.firstName.trim())) userDetails.firstName = data.firstName;
+  if (!isEmpty(data.middleName.trim())) userDetails.middleName = data.middleName;
+  if (!isEmpty(data.lastName.trim())) userDetails.lastName = data.lastName;
   if (!isEmpty(data.bio.trim())) userDetails.bio = data.bio;
   if (!isEmpty(data.website.trim())) {
     // https://website.com
@@ -54,4 +62,20 @@ exports.reduceUserDetails = (data) => {
   if (!isEmpty(data.location.trim())) userDetails.location = data.location;
 
   return userDetails;
+};
+
+
+
+exports.validateRecipeData = (data) => {
+  let errors = {};
+
+  if (isEmpty(data.recipeTitle)) errors.recipeTitle = 'Must not be empty';
+  if (isEmpty(data.recipeType)) errors.recipeType = 'Must not be empty';
+  if (isEmpty(data.ingredients)) errors.ingredients = 'Must not be empty';
+  if (isEmpty(data.body)) errors.body = 'Must not be empty';
+
+  return {
+    errors,
+    valid: Object.keys(errors).length === 0 ? true : false
+  };
 };

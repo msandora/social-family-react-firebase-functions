@@ -1,5 +1,10 @@
 const { db } = require('../util/admin');
 
+/*********************** 
+// Fetch all scream
+Get: /api/screams
+No Headers / No Body
+************************/
 exports.getAllScreams = (req, res) => {
   db.collection('screams')
     .orderBy('createdAt', 'desc')
@@ -17,6 +22,7 @@ exports.getAllScreams = (req, res) => {
           userImage: doc.data().userImage
         });
       });
+      console.log("getAllScreams", screams);
       return res.json(screams);
     })
     .catch((err) => {
@@ -25,6 +31,14 @@ exports.getAllScreams = (req, res) => {
     });
 };
 
+/*********************** 
+// post one scream
+Post: /api/scream
+Body: {
+  "body": "New Scream",
+  "userHandle": "testUser"
+}
+************************/
 exports.postOneScream = (req, res) => {
   if (req.body.body.trim() === '') {
     return res.status(400).json({ body: 'Body must not be empty' });
@@ -38,6 +52,7 @@ exports.postOneScream = (req, res) => {
     likeCount: 0,
     commentCount: 0
   };
+  console.log("postOneScream", newScream);
 
   db.collection('screams')
     .add(newScream)

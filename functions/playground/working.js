@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+const functions = require('firebase-functions');
 const app = require('express')();
 const FBAuth = require('./util/FBAuth');
 
@@ -10,12 +10,10 @@ const { db } = require('./util/admin');
 const { 
   getAllRecipes,
   postOneRecipe,
-  getRecipe,
-  commentOnRecipe,
-  likeRecipe,
-  unlikeRecipe,
   deleteRecipe,
-  createNewRecipe
+  getRecipe,
+  likeRecipe,
+  unlikeRecipe
 } = require('./handlers/recipes');
 const { 
   getAllScreams, 
@@ -43,10 +41,6 @@ app.get('/recipe/:screamId', getRecipe);
 app.delete('/recipe/:screamId', FBAuth, deleteRecipe);
 app.get('/recipe/:screamId/like', FBAuth, likeRecipe);
 app.get('/recipe/:screamId/unlike', FBAuth, unlikeRecipe);
-app.post('/recipe/:screamId/comment', FBAuth, commentOnRecipe);
-//experimenting
-app.post('/uploadImage', FBAuth, createNewRecipe);
-
 
 // scream routes
 app.get('/screams', getAllScreams);
@@ -69,7 +63,8 @@ app.post('/notifications', FBAuth, markNotificationsRead);
 // https://baseurl.com/api/ - Make 'app' container for all routes
 exports.api = functions.https.onRequest(app);
 
-exports.createNotificationOnScreamLike = functions
+
+exports.createNotificationOnLike = functions
   .firestore.document('likes/{id}')
     .onCreate((snapshot) => {
     return db
@@ -102,7 +97,7 @@ exports.deleteNotificationOnUnLike = functions
       });
   });
 
-exports.createNotificationOnScreamComment = functions
+exports.createNotificationOnComment = functions
   .firestore.document('comments/{id}')
   .onCreate((snapshot) => {
     return db
@@ -136,49 +131,11 @@ exports.createNotificationOnScreamComment = functions
       });
   });
 
-exports.onScreamDelete = functions
-  .firestore.document('/screams/{screamId}')
-  .onDelete((snapshot, context) => {
-    const screamId = context.params.screamId;
-    const batch = db.batch();
-    return db
-      .collection('comments')
-      .where('screamId', '==', screamId)
-      .get()
-      .then((data) => {
-        data.forEach((doc) => {
-          batch.delete(db.doc(`/comments/${doc.id}`));
-        });
-        return db
-          .collection('likes')
-          .where('screamId', '==', screamId)
-          .get();
-      })
-      .then((data) => {
-        data.forEach((doc) => {
-          batch.delete(db.doc(`/likes/${doc.id}`));
-        });
-        return db
-          .collection('notifications')
-          .where('screamId', '==', screamId)
-          .get();
-      })
-      .then((data) => {
-        data.forEach((doc) => {
-          batch.delete(db.doc(`/notifications/${doc.id}`));
-        });
-        return batch.commit();
-      })
-      .catch((err) => console.error(err));
-  });
-
-
-
 exports.onUserImageChange = functions
   .firestore.document('/users/{userId}')
   .onUpdate((change) => {
-    console.log("before", change.before.data());
-    console.log("after", change.after.data());
+    console.log(change.before.data());
+    console.log(change.after.data());
     if (change.before.data().imageUrl !== change.after.data().imageUrl) {
       console.log('image has changed');
       const batch = db.batch();
@@ -196,64 +153,8 @@ exports.onUserImageChange = functions
     } else return true;
   });
 
-
-// exports.createNotificationOnRecipeLike = functions
-//   .firestore.document('likes/{id}')
-//     .onCreate((snapshot) => {
-//     return db
-//       .doc(`/recipes/${snapshot.data().screamId}`)
-//       .get()
-//       .then((doc) => {
-//         if (doc.exists && doc.data().userHandle !== snapshot.data().userHandle) {
-//           return db.doc(`/notifications/${snapshot.id}`).set({
-//             createdAt: new Date().toISOString(),
-//             recipient: doc.data().userHandle,
-//             sender: snapshot.data().userHandle,
-//             type: 'like',
-//             read: false,
-//             screamId: doc.id
-//           });
-//         }
-//       })
-//       .catch((err) => console.error(err));
-//   });
-
-// exports.createNotificationOnRecipeComment = functions
-//   .firestore.document('comments/{id}')
-//   .onCreate((snapshot) => {
-//     return db
-//       .doc(`/recipes/${snapshot.data().screamId}`)
-//       .get()
-//       .then((doc) => {
-// /** need to check that the liked scream actually exists 
-//   * and a sender is not a recepient, i.e. the user is not liking his own screams.
-//   * In that case, we do not send any notification.
-//   */
-//         if (
-//           doc.exists &&
-//           doc.data().userHandle !== snapshot.data().userHandle
-//         ) {
-//           return db.doc(`/notifications/${snapshot.id}`).set({
-//             createdAt: new Date().toISOString(),
-//             recipient: doc.data().userHandle,
-//             sender: snapshot.data().userHandle,
-//             type: 'comment',
-//             read: false,
-//             screamId: doc.id
-//           });
-//         }
-//       })
-//       .then(() => {
-//         return;
-//       })
-//       .catch((err) => {
-//         console.error(err);
-//         return;
-//       });
-//   });
-
-exports.onRecipeDelete = functions
-  .firestore.document('/recipes/{screamId}')
+exports.onScreamDelete = functions
+  .firestore.document('/screams/{screamId}')
   .onDelete((snapshot, context) => {
     const screamId = context.params.screamId;
     const batch = db.batch();
