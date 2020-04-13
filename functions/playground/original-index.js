@@ -28,7 +28,7 @@ app.get('/screams', (req, res) => {
       data.forEach((doc) => {
           // screams.push(doc.data());
           screams.push({ // allows us to add id to object
-            screamId: doc.id,
+            postId: doc.id,
             body: doc.data().body,
             userHandle: doc.data().userHandle,
             createdAt: doc.data().createdAt,

@@ -150,7 +150,7 @@ exports.getUserDetails = (req, res) => {
           userImage: doc.data().userImage,
           likeCount: doc.data().likeCount,
           commentCount: doc.data().commentCount,
-          screamId: doc.id
+          postId: doc.id
         });
       });
       return res.json(userData);
@@ -198,7 +198,7 @@ exports.getAuthenticatedUser = (req, res) => {
           recipient: doc.data().recipient,
           sender: doc.data().sender,
           createdAt: doc.data().createdAt,
-          screamId: doc.data().screamId,
+          postId: doc.data().postId,
           type: doc.data().type,
           read: doc.data().read,
           notificationId: doc.id

@@ -37,19 +37,19 @@ const {
 // recipe routes
 app.get('/recipes', getAllRecipes);
 app.post('/recipe', FBAuth, postOneRecipe);
-app.get('/recipe/:screamId', getRecipe);
-app.delete('/recipe/:screamId', FBAuth, deleteRecipe);
-app.get('/recipe/:screamId/like', FBAuth, likeRecipe);
-app.get('/recipe/:screamId/unlike', FBAuth, unlikeRecipe);
+app.get('/recipe/:postId', getRecipe);
+app.delete('/recipe/:postId', FBAuth, deleteRecipe);
+app.get('/recipe/:postId/like', FBAuth, likeRecipe);
+app.get('/recipe/:postId/unlike', FBAuth, unlikeRecipe);
 
 // scream routes
 app.get('/screams', getAllScreams);
 app.post('/scream', FBAuth, postOneScream);
-app.get('/scream/:screamId', getScream);
-app.delete('/scream/:screamId', FBAuth, deleteScream);
-app.get('/scream/:screamId/like', FBAuth, likeScream);
-app.get('/scream/:screamId/unlike', FBAuth, unlikeScream);
-app.post('/scream/:screamId/comment', FBAuth, commentOnScream);
+app.get('/scream/:postId', getScream);
+app.delete('/scream/:postId', FBAuth, deleteScream);
+app.get('/scream/:postId/like', FBAuth, likeScream);
+app.get('/scream/:postId/unlike', FBAuth, unlikeScream);
+app.post('/scream/:postId/comment', FBAuth, commentOnScream);
 
 // users routes
 app.post('/signup', signup);
@@ -68,7 +68,7 @@ exports.createNotificationOnLike = functions
   .firestore.document('likes/{id}')
     .onCreate((snapshot) => {
     return db
-      .doc(`/screams/${snapshot.data().screamId}`)
+      .doc(`/screams/${snapshot.data().postId}`)
       .get()
       .then((doc) => {
         if (doc.exists && doc.data().userHandle !== snapshot.data().userHandle) {
@@ -78,7 +78,7 @@ exports.createNotificationOnLike = functions
             sender: snapshot.data().userHandle,
             type: 'like',
             read: false,
-            screamId: doc.id
+            postId: doc.id
           });
         }
       })
@@ -101,7 +101,7 @@ exports.createNotificationOnComment = functions
   .firestore.document('comments/{id}')
   .onCreate((snapshot) => {
     return db
-      .doc(`/screams/${snapshot.data().screamId}`)
+      .doc(`/screams/${snapshot.data().postId}`)
       .get()
       .then((doc) => {
 /** need to check that the liked scream actually exists 
@@ -118,7 +118,7 @@ exports.createNotificationOnComment = functions
             sender: snapshot.data().userHandle,
             type: 'comment',
             read: false,
-            screamId: doc.id
+            postId: doc.id
           });
         }
       })
@@ -154,13 +154,13 @@ exports.onUserImageChange = functions
   });
 
 exports.onScreamDelete = functions
-  .firestore.document('/screams/{screamId}')
+  .firestore.document('/screams/{postId}')
   .onDelete((snapshot, context) => {
-    const screamId = context.params.screamId;
+    const postId = context.params.postId;
     const batch = db.batch();
     return db
       .collection('comments')
-      .where('screamId', '==', screamId)
+      .where('postId', '==', postId)
       .get()
       .then((data) => {
         data.forEach((doc) => {
@@ -168,7 +168,7 @@ exports.onScreamDelete = functions
         });
         return db
           .collection('likes')
-          .where('screamId', '==', screamId)
+          .where('postId', '==', postId)
           .get();
       })
       .then((data) => {
@@ -177,7 +177,7 @@ exports.onScreamDelete = functions
         });
         return db
           .collection('notifications')
-          .where('screamId', '==', screamId)
+          .where('postId', '==', postId)
           .get();
       })
       .then((data) => {

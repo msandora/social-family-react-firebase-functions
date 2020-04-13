@@ -23,7 +23,7 @@ let db = {
   comments: [
     {
       userHandle: 'user',
-      screamId: 'kdjsfgdksuufhgkdsufky',
+      postId: 'kdjsfgdksuufhgkdsufky',
       body: 'nice one mate!',
       createdAt: '2019-03-15T10:59:52.798Z'
     }
@@ -33,7 +33,7 @@ let db = {
       recipient: 'user',
       sender: 'john',
       read: 'true | false',
-      screamId: 'kdjsfgdksuufhgkdsufky',
+      postId: 'kdjsfgdksuufhgkdsufky',
       type: 'like | comment',
       createdAt: '2019-03-15T10:59:52.798Z'
     }
@@ -54,11 +54,11 @@ const userDetails = {
   likes: [
     {
       userHandle: 'user',
-      screamId: 'hh7O5oWfWucVzGbHH2pa'
+      postId: 'hh7O5oWfWucVzGbHH2pa'
     },
     {
       userHandle: 'user',
-      screamId: '3IOnFoQexRcofs5OhBXO'
+      postId: '3IOnFoQexRcofs5OhBXO'
     }
   ]
 };
