@@ -21,6 +21,7 @@ exports.getAllScreams = (req, res) => {
           commentCount: doc.data().commentCount,
           likeCount: doc.data().likeCount,
           userImage: doc.data().userImage,
+          images: doc.data().images
         });
       });
       console.log("getAllScreams", screams);
@@ -52,7 +53,7 @@ exports.postOneScream = (req, res) => {
     userImage: req.user.imageUrl,
     createdAt: new Date().toISOString(),
     likeCount: 0,
-    commentCount: 0,
+    commentCount: 0
   };
   console.log("postOneScream", newScream);
 
@@ -70,7 +71,7 @@ exports.postOneScream = (req, res) => {
 };
 
 /*********************** 
-// post a scream
+// post a scream with image
 Headers: Bearer (Authorization Token)
 ************************/
 exports.postNewScream = (req, res) => {
@@ -83,7 +84,7 @@ exports.postNewScream = (req, res) => {
     userImage: req.user.imageUrl,
     createdAt: new Date().toISOString(),
     likeCount: 0,
-    commentCount: 0,
+    commentCount: 0
   };
   console.log("postNewScream", screamData);
 

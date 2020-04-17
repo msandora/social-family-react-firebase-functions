@@ -9,8 +9,8 @@ const { db } = require("./util/admin");
 
 const {
   getAllRecipes,
-  // postOneRecipe,
-  postNewRecipe,
+  postOneRecipe,
+  // postNewRecipe,
   getRecipe,
   commentOnRecipe,
   likeRecipe,
@@ -39,8 +39,8 @@ const {
 
 // recipe routes
 app.get("/recipes", getAllRecipes);
-// app.post("/recipe", FBAuth, postOneRecipe);
-app.post("/recipe", FBAuth, postNewRecipe);
+app.post("/recipe", FBAuth, postOneRecipe);
+// app.post("/recipe", FBAuth, postNewRecipe);
 app.get("/recipe/:postId", getRecipe);
 app.delete("/recipe/:postId", FBAuth, deleteRecipe);
 app.get("/recipe/:postId/like", FBAuth, likeRecipe);
@@ -226,6 +226,9 @@ exports.onRecipeDelete = functions.firestore
       })
       .catch((err) => console.error(err));
   });
+
+
+// Might use these, not sure
 
 // exports.createNotificationOnRecipeLike = functions
 //   .firestore.document('likes/{id}')
