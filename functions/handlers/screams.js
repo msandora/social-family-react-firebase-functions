@@ -15,12 +15,12 @@ exports.getAllScreams = (req, res) => {
       data.forEach((doc) => {
         screams.push({
           postId: doc.id,
+          createdAt: doc.data().createdAt,
           body: doc.data().body,
           userHandle: doc.data().userHandle,
-          createdAt: doc.data().createdAt,
-          commentCount: doc.data().commentCount,
-          likeCount: doc.data().likeCount,
           userImage: doc.data().userImage,
+          likeCount: doc.data().likeCount,
+          commentCount: doc.data().commentCount,
           images: doc.data().images
         });
       });

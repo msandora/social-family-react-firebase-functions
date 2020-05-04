@@ -144,13 +144,14 @@ exports.getUserDetails = (req, res) => {
       userData.screams = [];
       data.forEach((doc) => {
         userData.screams.push({
-          body: doc.data().body,
+          postId: doc.id,
           createdAt: doc.data().createdAt,
+          body: doc.data().body,
           userHandle: doc.data().userHandle,
           userImage: doc.data().userImage,
           likeCount: doc.data().likeCount,
           commentCount: doc.data().commentCount,
-          postId: doc.id
+          images: doc.data().images
         });
       });
       return res.json(userData);

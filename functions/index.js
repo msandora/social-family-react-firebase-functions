@@ -17,6 +17,7 @@ const {
   unlikeRecipe,
   deleteRecipe,
 } = require("./handlers/recipes");
+
 const {
   getAllScreams,
   // postOneScream,
@@ -27,6 +28,7 @@ const {
   unlikeScream,
   deleteScream,
 } = require("./handlers/screams");
+
 const {
   signup,
   login,
@@ -36,6 +38,11 @@ const {
   getUserDetails,
   markNotificationsRead,
 } = require("./handlers/users");
+
+const { getFamily } = require("./handlers/family");
+
+// Family routes
+app.get("/family-tree", getFamily);
 
 // recipe routes
 app.get("/recipes", getAllRecipes);
@@ -226,7 +233,6 @@ exports.onRecipeDelete = functions.firestore
       })
       .catch((err) => console.error(err));
   });
-
 
 // Might use these, not sure
 
