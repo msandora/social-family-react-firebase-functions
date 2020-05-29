@@ -1,6 +1,8 @@
 const { admin, db } = require("../util/admin");
 const config = require("../util/config");
 
+const { getMediaFileName } = require("../util/helpers");
+
 /*********************** 
 // Fetch all scream
 Get: /api/screams
@@ -21,7 +23,7 @@ exports.getAllScreams = (req, res) => {
           userImage: doc.data().userImage,
           likeCount: doc.data().likeCount,
           commentCount: doc.data().commentCount,
-          images: doc.data().images
+          images: doc.data().images,
         });
       });
       console.log("getAllScreams", screams);
@@ -53,7 +55,7 @@ exports.postOneScream = (req, res) => {
     userImage: req.user.imageUrl,
     createdAt: new Date().toISOString(),
     likeCount: 0,
-    commentCount: 0
+    commentCount: 0,
   };
   console.log("postOneScream", newScream);
 
@@ -84,7 +86,7 @@ exports.postNewScream = (req, res) => {
     userImage: req.user.imageUrl,
     createdAt: new Date().toISOString(),
     likeCount: 0,
-    commentCount: 0
+    commentCount: 0,
   };
   console.log("postNewScream", screamData);
 
@@ -382,6 +384,105 @@ exports.deleteScream = (req, res) => {
     })
     .then(() => {
       res.json({ message: "Scream deleted successfully" });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+// Upload an image or a video to a scream
+exports.uploadScreamMedia = (req, res) => {
+  const document = db.doc(`/screams/${req.params.screamId}`);
+  document
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "Scream not found" });
+      }
+      if (doc.data().userHandle !== req.user.handle) {
+        return res.status(403).json({ error: "Unauthorized" });
+      } else {
+        // Scream is indeed owned by user
+        const scream = doc.data();
+        const oldMediaUrl = scream.mediaUrl;
+
+        const BusBoy = require("busboy");
+        const path = require("path");
+        const os = require("os");
+        const fs = require("fs");
+        const { uuid } = require("uuidv4");
+
+        const busboy = new BusBoy({ headers: req.headers });
+
+        let imageToBeUploaded = {};
+        let imageFileName;
+        // String for image token
+        let generatedToken = uuid();
+
+        busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+          // Alowed file types (you can add other extensions if you wish)
+          let allowedTypes = ["image/jpeg", "image/png", "video/mp4"];
+          // If mimtype isnt in allowed types return error
+          if (!allowedTypes.includes(mimetype)) {
+            return res
+              .status(400)
+              .json({ error: `File type ${mimetype} is not allowed` });
+          }
+          // my.image.png => ['my', 'image', 'png']
+          const imageExtension = filename.split(".")[
+            filename.split(".").length - 1
+          ];
+          // 32756238461724837.png
+          imageFileName = `${Math.round(
+            Math.random() * 1000000000000
+          ).toString()}.${imageExtension}`;
+          namme = imageFileName;
+          const filepath = path.join(os.tmpdir(), imageFileName);
+          imageToBeUploaded = { filepath, mimetype };
+          file.pipe(fs.createWriteStream(filepath));
+        });
+
+        busboy.on("finish", () => {
+          admin
+            .storage()
+            .bucket()
+            .upload(imageToBeUploaded.filepath, {
+              resumable: false,
+              metadata: {
+                metadata: {
+                  contentType: imageToBeUploaded.mimetype,
+                  //Generate token to be appended to imageUrl
+                  firebaseStorageDownloadTokens: generatedToken,
+                },
+              },
+            })
+            .then(() => {
+              // Append token to url
+              const mediaUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media&token=${generatedToken}`;
+              scream.mediaUrl = mediaUrl;
+              return db.doc(`/screams/${doc.id}`).update({ mediaUrl });
+            })
+            .then(() => {
+              // Delete old media if exists
+              if (oldMediaUrl) {
+                const filename = getMediaFileName(oldMediaUrl);
+                // Delete file
+                return admin.storage().bucket().deleteFiles({
+                  prefix: filename,
+                });
+              }
+            })
+            .then(() => {
+              return res.status(200).json({ scream });
+            })
+            .catch((err) => {
+              console.error(err);
+              return res.status(500).json({ error: "something went wrong" });
+            });
+        });
+        busboy.end(req.rawBody);
+      }
     })
     .catch((err) => {
       console.error(err);
