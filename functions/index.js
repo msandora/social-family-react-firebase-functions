@@ -5,7 +5,10 @@ const FBAuth = require("./util/FBAuth");
 const cors = require("cors");
 app.use(cors());
 
-const { db } = require("./util/admin");
+const { admin, db } = require("./util/admin");
+const config = require("./util/config");
+
+const { getMediaFileName } = require("./util/helpers");
 
 const {
   getAllRecipes,
@@ -27,6 +30,7 @@ const {
   likeScream,
   unlikeScream,
   deleteScream,
+  uploadScreamMedia,
 } = require("./handlers/screams");
 
 const {
@@ -63,6 +67,7 @@ app.delete("/scream/:postId", FBAuth, deleteScream);
 app.get("/scream/:postId/like", FBAuth, likeScream);
 app.get("/scream/:postId/unlike", FBAuth, unlikeScream);
 app.post("/scream/:postId/comment", FBAuth, commentOnScream);
+app.post("/scream/:screamId/image", FBAuth, uploadScreamImage);
 
 // users routes
 app.post("/signup", signup);
@@ -174,6 +179,16 @@ exports.onScreamDelete = functions.firestore
         data.forEach((doc) => {
           batch.delete(db.doc(`/notifications/${doc.id}`));
         });
+        // If scream has media delete it
+        if (snapshot.data().mediaUrl) {
+          // Delete media
+          const oldMediaFileName = getMediaFileName(snapshot.data().mediaUrl);
+          return admin.storage().bucket(config.storageBucket).deleteFiles({
+            prefix: oldMediaFileName,
+          });
+        }
+      })
+      .then(() => {
         return batch.commit();
       })
       .catch((err) => console.error(err));
