@@ -45,6 +45,7 @@ const {
 } = require("./handlers/users");
 
 const { getFamily } = require("./handlers/family");
+const { deleteComment } = require("./handlers/comments");
 
 // Family routes
 app.get("/family-tree", getFamily);
@@ -70,6 +71,8 @@ app.get("/scream/:postId/unlike", FBAuth, unlikeScream);
 app.post("/scream/:postId/comment", FBAuth, commentOnScream);
 app.post("/scream/:screamId/media", FBAuth, uploadScreamMedia);
 app.delete("/scream/:screamId/media/:mediaId", FBAuth, deleteScreamMedia);
+// Delete a comment
+app.delete("/comment/:commentId", FBAuth, deleteComment);
 
 // users routes
 app.post("/signup", signup);
