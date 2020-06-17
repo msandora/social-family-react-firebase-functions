@@ -23,14 +23,15 @@ const {
 
 const {
   getAllScreams,
-  // postOneScream,
-  postNewScream,
+  postOneScream,
+  // postNewScream,
   getScream,
   commentOnScream,
   likeScream,
   unlikeScream,
   deleteScream,
   uploadScreamMedia,
+  deleteScreamMedia,
 } = require("./handlers/screams");
 
 const {
@@ -44,6 +45,7 @@ const {
 } = require("./handlers/users");
 
 const { getFamily } = require("./handlers/family");
+const { deleteComment } = require("./handlers/comments");
 
 // Family routes
 app.get("/family-tree", getFamily);
@@ -60,14 +62,17 @@ app.post("/recipe/:postId/comment", FBAuth, commentOnRecipe);
 
 // scream routes
 app.get("/screams", getAllScreams);
-// app.post("/scream", FBAuth, postOneScream);
-app.post("/scream", FBAuth, postNewScream);
+app.post("/scream", FBAuth, postOneScream);
+// app.post("/scream", FBAuth, postNewScream);
 app.get("/scream/:postId", getScream);
 app.delete("/scream/:postId", FBAuth, deleteScream);
 app.get("/scream/:postId/like", FBAuth, likeScream);
 app.get("/scream/:postId/unlike", FBAuth, unlikeScream);
 app.post("/scream/:postId/comment", FBAuth, commentOnScream);
-app.post("/scream/:screamId/image", FBAuth, uploadScreamImage);
+app.post("/scream/:screamId/media", FBAuth, uploadScreamMedia);
+app.delete("/scream/:screamId/media/:mediaId", FBAuth, deleteScreamMedia);
+// Delete a comment
+app.delete("/comment/:commentId", FBAuth, deleteComment);
 
 // users routes
 app.post("/signup", signup);
@@ -179,16 +184,7 @@ exports.onScreamDelete = functions.firestore
         data.forEach((doc) => {
           batch.delete(db.doc(`/notifications/${doc.id}`));
         });
-        // If scream has media delete it
-        if (snapshot.data().mediaUrl) {
-          // Delete media
-          const oldMediaFileName = getMediaFileName(snapshot.data().mediaUrl);
-          return admin.storage().bucket(config.storageBucket).deleteFiles({
-            prefix: oldMediaFileName,
-          });
-        }
-      })
-      .then(() => {
+
         return batch.commit();
       })
       .catch((err) => console.error(err));
